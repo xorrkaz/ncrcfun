@@ -103,7 +103,7 @@ All these commands are initially inert, and saved to the configuration. The conf
 
 NOTE: the configuration lines above applies equally to RESTCONF. In other words, the config above is put into a network element automatically once **netconf-yang or restconf** are enabled. To enable oper-data for the models described above, they need to be enabled to be polled. One additional config line is needed:
 ```
-netconf-yang cisco-odm polling-enable
+**netconf-yang cisco-odm polling-enable**
 ```
 This enables the components above to have oper-data exposed through polling. ODM polls the components themselves, and answers NETCONF <get> or RESTCONF GET requests on the components behalf. Let's take a look at an example from an open model; ietf-routing:
 
