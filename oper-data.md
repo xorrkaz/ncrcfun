@@ -93,13 +93,13 @@ All these commands are initially inert, and saved to the configuration. The conf
 * Diffserv - [ietf-diffserv-target.yang](https://github.com/YangModels/yang/blob/master/vendor/cisco/xe/1651/ietf-diffserv-target.yang)
 * FlowMonitor - [Cisco-IOS-XE-flow-monitor-oper.yang](https://github.com/YangModels/yang/blob/master/vendor/cisco/xe/1651/Cisco-IOS-XE-flow-monitor-oper.yang)
 * BFDNeighbors - [Cisco-IOS-XE-bfd-oper.yang](https://github.com/YangModels/yang/blob/master/vendor/cisco/xe/1651/Cisco-IOS-XE-bfd-oper.yang)
-* BridgeDomain -
-* VirtualService -
-* EthernetCFMStats -
+* BridgeDomain - [Cisco-IOS-XE-bridge-domain.yang](https://github.com/YangModels/yang/blob/master/vendor/cisco/xe/1651/Cisco-IOS-XE-bridge-domain.yang)
+* VirtualService - [Cisco-IOS-XE-virtual-service-oper.yang](https://github.com/YangModels/yang/blob/master/vendor/cisco/xe/1651/Cisco-IOS-XE-virtual-service-oper.yang)
+* EthernetCFMStats - [Cisco-IOS-XE-cfm-oper.yang](https://github.com/YangModels/yang/blob/master/vendor/cisco/xe/1651/Cisco-IOS-XE-cfm-oper.yang)
 * MPLSLDPNeighbors - [Cisco-IOS-XE-mpls-ldp.yang](https://github.com/YangModels/yang/blob/master/vendor/cisco/xe/1651/Cisco-IOS-XE-mpls-ldp.yang)
 * PlatformSoftware - [Cisco-IOS-XE-platform-software-oper.yang](https://github.com/YangModels/yang/blob/master/vendor/cisco/xe/1651/Cisco-IOS-XE-platform-software-oper.yang)
 * MPLSStaticBinding - [common-mpls-static.yang](https://github.com/YangModels/yang/blob/master/vendor/cisco/xe/1651/common-mpls-static.yang)
-* MPLSForwardingTable -
+* MPLSForwardingTable - [Cisco-IOS-XE-mpls-fwd-oper.yang](https://github.com/YangModels/yang/blob/master/vendor/cisco/xe/1651/Cisco-IOS-XE-mpls-fwd-oper.yang)
 
 NOTE: the configuration lines above applies equally to RESTCONF. In other words, the config above is put into a network element automatically once **netconf-yang or restconf** are enabled. To enable oper-data for the models described above, they need to be enabled to be polled. One additional config line is needed:
 ```
@@ -142,5 +142,48 @@ Finally, from a NETCONF point of view, your software should be able to determine
 ```
 <capability>http://cisco.com/yang/cisco-odm?module=cisco-odm&amp;revision=2017-01-25</capability>
 ```
+
+### SNMP
+
+Operational Data from SNMP can be exposed over NETCONF/RESTCONF as well.
+
+##### Configuration
+
+By default, SNMP data is not returned over a model-drive interface. But that's only because SNMP isn't a default itself. When SNMP is enabled, please study your configurations. Introductory-level examples are given here. Let's start with a vanilla SNMP configuration:
+```
+snmp-server community tomato RO
+```
+In this minimal case, we have enabled SNMP with a community string of 'tomato'. By default, we need a netconf-yang command to match the SNMP community string for it to be used for internal processing to model operation:
+```
+netconf-yang cisco-ia snmp-community-string tomato
+```
+Once we have matched our community string as indicated above, minimal SNMP data should now be available through models. Let's take a look at an example:
+```
+./ncc.py --host=172.36.170.252 --get-oper -x '/SNMPv2-MIB/system/sysName'
+```
+The result should be hostname of the network element.
+```
+<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <SNMPv2-MIB xmlns="urn:ietf:params:xml:ns:yang:smiv2:SNMPv2-MIB">
+    <system>
+      <sysName>o22-4451-1.cisco.com</sysName>
+    </system>
+  </SNMPv2-MIB>
+</data>
+```
+NOTE: SNMPv3 is not currently supported with a NETCONF/RESTCONF return of data.
+
+The working example above is introductory. Traps can also sent through NETCONF. This includes syslog support. If you would like to discover what SNMP data is available, make sure your software understands the capabilities exchange from your network element. To see full offline capabilities exchange for IOS-XE devices, please see [here](https://github.com/YangModels/yang/tree/master/vendor/cisco/xe/1651)
+
+###### Traps
+
+Enabling various kinds of SNMP traps are out of the scope of this document. For models, it is important to know that traps are not enabled by default, and must be configured explicitly. Additional configuration is required:
+```
+o22-4451-1(config)#netconf-yang cisco-ia snmp-trap-control trap-list ?
+  WORD  Enter SNMP trap OID string
+```
+As you can see above, an OID should be configured. This will discretely enable traps on a per-OID basis, for the traps desired to be sent through NETCONF. Like SNMP data in general, a capabilities exchange will tell your software what traps are available on any platform in question.
+
+This is the beginning of this thing called oper-data over a model-driven interface.
 
 Happy coding!
