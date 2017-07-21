@@ -27,9 +27,9 @@ The filenames from github should give you an idea of what each structure provide
 ```                                 
 ./ncc.py --host=172.36.170.252 --get-oper -x '/interfaces-state/interface[name="GigabitEthernet0/0"]/oper-status'
 ```    
-NOTE: For more details on the use of ncc, please see [here](https://github.com/CiscoDevNet/ncc)
+NOTE: ncc for the NETCONF Console is available from [GitHub](https://github.com/CiscoDevNet/ncc)
 
-The data returned will be the operational data defined in the YANG model, for the interface in question. Here are result details:
+The data returned will be the operational data defined in the ietf-interfaces YANG model for the interface in question. Here are result details:
 ```
 <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
   <interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
@@ -41,13 +41,13 @@ The data returned will be the operational data defined in the YANG model, for th
 </data>
 
 ```
-NOTE: XPATH is being used for a specific query of the oper-status of a single interface.
+NOTE: Because the `-x` option is specified, [XPath](https://www.w3schools.com/xml/xpath_intro.asp) is being used for a specific query of the oper-status of a single interface.
 
-Finally, the models above represent the beginning of what types of oper-data are enabled by default over a model-driven interface via polled. More oper-data models will be delivered in future releases of software.
+Finally, the models above represent the beginning of what types of oper-data are enabled by default over a model-driven interface via polling. More oper-data models will be delivered in future releases of software.
 
 ## Non-default oper-data
 
-There are 2 types of non-default oper-data. One type provided through an onboard Operational Data Manager (or ODM). Another type is SNMP.
+There are two types of non-default oper-data. One type provided through an onboard Operational Data Manager (or ODM). Another type is SNMP.
 
 ### Operational Data Manager
 
@@ -110,7 +110,7 @@ This enables the components above to have oper-data exposed through polling. ODM
 ```                                 
 ./ncc.py --host=172.36.170.252 --get-oper -x '/routing-state/routing-instance/ribs/rib/routes/route[destination-prefix="0.0.0.0/0"]"
 ```
-The result should be the information in the elements routing table, as defined by the model. Here is an example result:
+The result should be the information in the device's routing table relative to the default route (i.e., 0.0.0.0), as defined by the model. Here is an example result:
 ```
 <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
   <routing-state xmlns="urn:ietf:params:xml:ns:yang:ietf-routing">
@@ -136,7 +136,7 @@ The result should be the information in the elements routing table, as defined b
   </routing-state>
 </data>
 ```
-NOTE: XPATH is being used for a specific query of a single route.
+NOTE: As with the example above, XPath notation is used.  In this case, it allows us to pick out the details of one specific route.
 
 Finally, from a NETCONF point of view, your software should be able to determine the presence of the ODM on the network element through the following from a capabilities exchange:
 ```
@@ -171,7 +171,7 @@ The result should be hostname of the network element.
   </SNMPv2-MIB>
 </data>
 ```
-NOTE: SNMPv3 is not currently supported with a NETCONF/RESTCONF return of data.
+NOTE: SNMPv3 is not currently supported by the NETCONF/RESTCONF sub-systems.
 
 The working example above is introductory. Traps can also sent through NETCONF. This includes syslog support. If you would like to discover what SNMP data is available, make sure your software understands the capabilities exchange from your network element. To see full offline capabilities exchange for IOS-XE devices, please see [here](https://github.com/YangModels/yang/tree/master/vendor/cisco/xe/1651)
 
