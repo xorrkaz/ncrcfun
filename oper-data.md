@@ -136,7 +136,7 @@ The result should be the information in the elements routing table, as defined b
   </routing-state>
 </data>
 ```
-NOTE: NOTE: XPATH is being used for a specific query of a single route.
+NOTE: XPATH is being used for a specific query of a single route.
 
 Finally, from a NETCONF point of view, your software should be able to determine the presence of the ODM on the network element through the following from a capabilities exchange:
 ```
